@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI Content Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 MBTI Personality Content Generator</h1>
+            <p class="subtitle">Discover personalized insights based on your Myers-Briggs Type</p>
+        </header>
+
+        <div class="input-section">
+            <div class="mbti-selector">
+                <h2>Select Your MBTI Type</h2>
+                <div class="selector-grid">
+                    <div class="dimension">
+                        <label>Energy</label>
+                        <div class="button-group">
+                            <button class="dimension-btn active" data-dimension="energy" data-value="E">E - Extrovert</button>
+                            <button class="dimension-btn" data-dimension="energy" data-value="I">I - Introvert</button>
+                        </div>
+                    </div>
+                    <div class="dimension">
+                        <label>Information</label>
+                        <div class="button-group">
+                            <button class="dimension-btn active" data-dimension="information" data-value="S">S - Sensing</button>
+                            <button class="dimension-btn" data-dimension="information" data-value="N">N - Intuition</button>
+                        </div>
+                    </div>
+                    <div class="dimension">
+                        <label>Decision</label>
+                        <div class="button-group">
+                            <button class="dimension-btn active" data-dimension="decision" data-value="T">T - Thinking</button>
+                            <button class="dimension-btn" data-dimension="decision" data-value="F">F - Feeling</button>
+                        </div>
+                    </div>
+                    <div class="dimension">
+                        <label>Structure</label>
+                        <div class="button-group">
+                            <button class="dimension-btn active" data-dimension="structure" data-value="J">J - Judging</button>
+                            <button class="dimension-btn" data-dimension="structure" data-value="P">P - Perceiving</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="current-type">
+                    <span>Your Type:</span>
+                    <span id="currentType" class="type-badge">ESTJ</span>
+                </div>
+                <button id="generateBtn" class="generate-btn">Generate My Personalized Content</button>
+            </div>
+        </div>
+
+        <div id="results" class="results-section hidden">
+            <h2>Your Personalized Insights</h2>
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="card-icon">💼</div>
+                    <h3>Career Suggestions</h3>
+                    <div id="careerContent" class="card-content"></div>
+                </div>
+                <div class="result-card">
+                    <div class="card-icon">🎨</div>
+                    <h3>Hobby Recommendations</h3>
+                    <div id="hobbyContent" class="card-content"></div>
+                </div>
+                <div class="result-card">
+                    <div class="card-icon">📚</div>
+                    <h3>Learning Style</h3>
+                    <div id="learningContent" class="card-content"></div>
+                </div>
+                <div class="result-card">
+                    <div class="card-icon">🤝</div>
+                    <h3>Communication Tips</h3>
+                    <div id="communicationContent" class="card-content"></div>
+                </div>
+                <div class="result-card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Strengths</h3>
+                    <div id="strengthsContent" class="card-content"></div>
+                </div>
+                <div class="result-card">
+                    <div class="card-icon">🌱</div>
+                    <h3>Growth Areas</h3>
+                    <div id="growthContent" class="card-content"></div>
+                </div>
+                <div class="result-card">
+                    <div class="card-icon">💡</div>
+                    <h3>Daily Motivation</h3>
+                    <div id="motivationContent" class="card-content"></div>
+                </div>
+                <div class="result-card">
+                    <div class="card-icon">🎯</div>
+                    <h3>Ideal Environment</h3>
+                    <div id="environmentContent" class="card-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
