@@ -25,6 +25,8 @@ function MBTIGenerator() {
     structure: 'J'
   });
   const [showResults, setShowResults] = useState(false);
+  const [showFolder, setShowFolder] = useState(false);
+  const [folderOpened, setFolderOpened] = useState(false);
   const [spotifyTracks, setSpotifyTracks] = useState<SpotifyTrack[]>([]);
   const [loadingMusic, setLoadingMusic] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -67,12 +69,22 @@ function MBTIGenerator() {
   };
 
   const generateContent = async () => {
-    setShowResults(true);
+    setShowFolder(true);
+    setFolderOpened(false);
+    setShowResults(false);
     await fetchSpotifyRecommendations();
     
     setTimeout(() => {
-      document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('folder')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
+  };
+
+  const openFolder = () => {
+    setFolderOpened(true);
+    setShowResults(true);
+    setTimeout(() => {
+      document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
   };
 
   const getNextSong = () => {
@@ -139,7 +151,27 @@ function MBTIGenerator() {
         </div>
       </div>
 
-      {showResults && (
+      {showFolder && !folderOpened && (
+        <div id="folder" className={styles.folderSection}>
+          <div className={styles.folderContainer} onDoubleClick={openFolder}>
+            <div className={styles.folderIcon}>
+              <svg viewBox="0 0 100 80" className={styles.folderSvg}>
+                <path d="M0,10 L0,70 Q0,75 5,75 L95,75 Q100,75 100,70 L100,20 Q100,15 95,15 L50,15 L45,5 Q43,0 38,0 L5,0 Q0,0 0,5 Z" 
+                      fill="#FFD166" stroke="#D4A044" strokeWidth="2"/>
+                <path d="M0,20 L100,20" stroke="#D4A044" strokeWidth="1" opacity="0.5"/>
+              </svg>
+            </div>
+            <div className={styles.folderLabel}>
+              {currentType} Personality Insights
+            </div>
+            <div className={styles.doubleClickHint}>
+              Double-click to open
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResults && folderOpened && (
         <div id="results" className={styles.resultsSection}>
           <h2>Your Personalized Insights</h2>
           <div className={styles.resultsGrid}>
