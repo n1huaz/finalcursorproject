@@ -184,9 +184,9 @@ function MBTIGenerator() {
               content={mbtiContent.growth[currentType]}
             />
             <ResultCard
-              icon="💡"
-              title="Daily Motivation"
-              content={mbtiContent.motivation[currentType]}
+              icon="🔮"
+              title="Your Horoscope"
+              content={mbtiContent.horoscope[currentType]}
               isText
             />
             <ResultCard
@@ -547,6 +547,24 @@ const mbtiContent: any = {
     ISFP: "\"The purpose of art is washing the dust of daily life off our souls.\" - Your creativity brings beauty to the world.",
     ESTP: "\"Life is 10% what happens to you and 90% how you react to it.\" - Your adaptability conquers challenges.",
     ESFP: "\"Happiness is not something ready made. It comes from your own actions.\" - Your energy brightens every room."
+  },
+  horoscope: {
+    INTJ: "<strong>This week:</strong> The stars align for your strategic planning. A breakthrough insight arrives mid-week. <strong>Focus:</strong> Trust your intuition alongside your logic. <strong>Lucky element:</strong> Deep conversations will unlock new pathways. Your analytical powers are at their peak—use them to solve that complex problem you've been pondering.",
+    INTP: "<strong>This week:</strong> Mercury enhances your already brilliant mind. Intellectual discoveries await in unexpected places. <strong>Focus:</strong> Connect your theories to practical applications. <strong>Lucky element:</strong> A random curiosity leads to profound understanding. Share your ideas—others need your unique perspective.",
+    ENTJ: "<strong>This week:</strong> Leadership opportunities multiply. Your commanding presence attracts important connections. <strong>Focus:</strong> Balance ambition with collaboration. <strong>Lucky element:</strong> A bold move pays dividends. The universe rewards your decisiveness—don't second-guess your strategic instincts this week.",
+    ENTP: "<strong>This week:</strong> Innovation flows through you like electricity. Your creative ideas challenge conventions brilliantly. <strong>Focus:</strong> Choose one project to complete. <strong>Lucky element:</strong> Debate sparks breakthrough moments. Your adaptability turns a potential obstacle into an opportunity for reinvention.",
+    INFJ: "<strong>This week:</strong> Your intuition is extraordinarily heightened. Deep insights about people and situations emerge clearly. <strong>Focus:</strong> Set boundaries to protect your energy. <strong>Lucky element:</strong> A meaningful connection transforms your perspective. Trust the vision you're receiving—it's guiding you toward your purpose.",
+    INFP: "<strong>This week:</strong> Creative energy flows abundantly. Your authentic self shines through in beautiful ways. <strong>Focus:</strong> Turn dreams into tangible steps. <strong>Lucky element:</strong> Art or writing brings unexpected clarity. The universe is asking you to share your unique gifts—don't hide your light.",
+    ENFJ: "<strong>This week:</strong> Your natural charisma draws people to you. Opportunities to inspire and lead multiply. <strong>Focus:</strong> Remember to nurture yourself too. <strong>Lucky element:</strong> Mentoring creates mutual growth. Someone needs exactly what you have to offer—your empathy is healing more than you realize.",
+    ENFP: "<strong>This week:</strong> Adventure and possibility surround you. New experiences open exciting doors. <strong>Focus:</strong> Follow through on one inspired idea. <strong>Lucky element:</strong> Spontaneity leads to magic. Your enthusiasm is contagious—watch how it transforms the energy of every room you enter.",
+    ISTJ: "<strong>This week:</strong> Your methodical approach yields impressive results. Hard work gains recognition. <strong>Focus:</strong> Welcome one small change gracefully. <strong>Lucky element:</strong> Detailed planning prevents future chaos. Your reliability is building something lasting—stay the course with confidence.",
+    ISFJ: "<strong>This week:</strong> Your caring nature creates ripple effects of kindness. Appreciation comes from unexpected sources. <strong>Focus:</strong> Accept help when offered. <strong>Lucky element:</strong> Quiet moments restore your soul. Your behind-the-scenes efforts are more valued than you know—let yourself receive gratitude.",
+    ESTJ: "<strong>This week:</strong> Your organizational skills are in high demand. Projects move forward efficiently under your guidance. <strong>Focus:</strong> Listen to unconventional ideas. <strong>Lucky element:</strong> Structure creates freedom. Your ability to execute is turning vision into reality—others look to you for leadership.",
+    ESFJ: "<strong>This week:</strong> Social connections bring joy and opportunity. Your warm presence strengthens relationships. <strong>Focus:</strong> Express your needs clearly. <strong>Lucky element:</strong> Community events spark happiness. Your gift for bringing people together is creating lasting bonds—celebrate your social genius.",
+    ISTP: "<strong>This week:</strong> Hands-on problem-solving brings satisfaction. Technical challenges become enjoyable puzzles. <strong>Focus:</strong> Share your expertise with others. <strong>Lucky element:</strong> Solo time recharges your batteries. Your practical skills are needed—don't underestimate your ability to fix what others can't.",
+    ISFP: "<strong>This week:</strong> Artistic inspiration flows naturally. Beauty surrounds and energizes you. <strong>Focus:</strong> Express emotions through creativity. <strong>Lucky element:</strong> Nature heals and inspires. Your aesthetic sensibility is a gift—let it guide your choices and creative expressions this week.",
+    ESTP: "<strong>This week:</strong> Action and opportunity align perfectly. Quick thinking opens new doors. <strong>Focus:</strong> Consider long-term impacts. <strong>Lucky element:</strong> Physical activity clears mental fog. Your boldness is your superpower—trust your instincts to navigate dynamic situations.",
+    ESFP: "<strong>This week:</strong> Joy and celebration find you everywhere. Your playful spirit attracts positive experiences. <strong>Focus:</strong> Balance fun with responsibilities. <strong>Lucky element:</strong> Performance or socializing energizes you. Your ability to live in the moment is teaching others how to truly enjoy life."
   },
   environment: {
     INTJ: "Quiet, organized spaces with minimal distractions. You need autonomy and time for deep thinking. Prefer competent colleagues and intellectually challenging work.",
