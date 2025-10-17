@@ -162,19 +162,19 @@ function MBTIGenerator() {
         INTJ: 150, // Mewtwo - Intelligent and strategic
         INTP: 137, // Porygon - Analytical and logical
         ENTJ: 248, // Tyranitar - Powerful and commanding
-        ENTP: 150, // Mewtwo - Innovative and adaptable
+        ENTP: 149, // Dragonite - Innovative and adaptable
         INFJ: 144, // Articuno - Mystical and wise
         INFP: 151, // Mew - Dreamy and creative
-        ENFJ: 144, // Articuno - Inspiring and protective
-        ENFP: 150, // Mewtwo - Enthusiastic and dynamic
+        ENFJ: 145, // Zapdos - Inspiring and protective
+        ENFP: 146, // Moltres - Enthusiastic and dynamic
         ISTJ: 143, // Snorlax - Reliable and methodical
         ISFJ: 131, // Lapras - Caring and supportive
-        ESTJ: 248, // Tyranitar - Organized and authoritative
-        ESFJ: 131, // Lapras - Helpful and traditional
+        ESTJ: 147, // Dratini - Organized and authoritative
+        ESFJ: 132, // Ditto - Helpful and traditional
         ISTP: 142, // Aerodactyl - Practical and independent
-        ISFP: 151, // Mew - Artistic and gentle
-        ESTP: 142, // Aerodactyl - Energetic and action-oriented
-        ESFP: 150, // Mewtwo - Fun-loving and social
+        ISFP: 133, // Eevee - Artistic and gentle
+        ESTP: 134, // Vaporeon - Energetic and action-oriented
+        ESFP: 135, // Jolteon - Fun-loving and social
       };
 
       const pokemonId = pokemonRecommendations[currentType] || 150; // Default to Mewtwo
