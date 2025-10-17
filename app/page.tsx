@@ -17,6 +17,84 @@ interface SpotifyTrack {
   };
 }
 
+function MatrixLoadingScreen() {
+  const [matrixChars, setMatrixChars] = useState<string[][]>([]);
+  const [animationFrame, setAnimationFrame] = useState(0);
+
+  useEffect(() => {
+    // Initialize matrix characters
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const katakana = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+    const allChars = chars + katakana;
+    
+    // Create initial matrix grid
+    const initialMatrix: string[][] = [];
+    const columns = 80;
+    const rows = 40;
+    
+    for (let col = 0; col < columns; col++) {
+      initialMatrix[col] = [];
+      for (let row = 0; row < rows; row++) {
+        initialMatrix[col][row] = Math.random() > 0.8 ? allChars[Math.floor(Math.random() * allChars.length)] : '';
+      }
+    }
+    
+    setMatrixChars(initialMatrix);
+
+    // Animation loop
+    const interval = setInterval(() => {
+      setMatrixChars(prevMatrix => {
+        const newMatrix = prevMatrix.map((column, colIndex) => {
+          return column.map((char, rowIndex) => {
+            // Randomly update characters with fade effect
+            if (Math.random() > 0.85) {
+              return allChars[Math.floor(Math.random() * allChars.length)];
+            }
+            return char;
+          });
+        });
+        return newMatrix;
+      });
+      
+      setAnimationFrame(prev => prev + 1);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className={styles.matrixContainer}>
+      <div className={styles.matrixGrid}>
+        {matrixChars.map((column, colIndex) => (
+          <div key={colIndex} className={styles.matrixColumn}>
+            {column.map((char, rowIndex) => (
+              <span
+                key={`${colIndex}-${rowIndex}`}
+                className={styles.matrixChar}
+                style={{
+                  opacity: Math.random() > 0.5 ? 1 : 0.3,
+                  color: `hsl(${120 + Math.random() * 20}, 100%, ${50 + Math.random() * 30}%)`,
+                  animationDelay: `${Math.random() * 2}s`
+                }}
+              >
+                {char}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className={styles.matrixOverlay}>
+        <div className={styles.matrixText}>
+          <div className={styles.matrixProgress}>
+            <div className={styles.matrixProgressBar}></div>
+          </div>
+          <p>Analyzing personality patterns...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MBTIGenerator() {
   const [mbti, setMbti] = useState({
     energy: 'E',
@@ -27,6 +105,14 @@ function MBTIGenerator() {
   const [showResults, setShowResults] = useState(false);
   const [showFolder, setShowFolder] = useState(false);
   const [folderOpened, setFolderOpened] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const goBack = () => {
+    setShowFolder(false);
+    setFolderOpened(false);
+    setShowResults(false);
+    setIsGenerating(false);
+  };
   const [spotifyTracks, setSpotifyTracks] = useState<SpotifyTrack[]>([]);
   const [loadingMusic, setLoadingMusic] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -69,14 +155,20 @@ function MBTIGenerator() {
   };
 
   const generateContent = async () => {
+    setIsGenerating(true);
     setShowFolder(true);
     setFolderOpened(false);
     setShowResults(false);
-    await fetchSpotifyRecommendations();
     
-    setTimeout(() => {
-      document.getElementById('folder')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    // Simulate loading time with Matrix animation
+    setTimeout(async () => {
+      await fetchSpotifyRecommendations();
+      setIsGenerating(false);
+      
+      setTimeout(() => {
+        document.getElementById('folder')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }, 3000); // 3 seconds of Matrix animation
   };
 
   const openFolder = () => {
@@ -188,94 +280,104 @@ function MBTIGenerator() {
 
   return (
     <div className={styles.container}>
+      {(showFolder || folderOpened || showResults) && (
+        <button onClick={goBack} className={styles.backButton}>
+          ← Back
+        </button>
+      )}
       <header className={styles.header}>
         <h1>🧠 MBTI Personality Lifestyle Generator</h1>
-        <p className={styles.subtitle}>Discover personalized insights based on your Myers-Briggs Type</p>
       </header>
 
-      <div className={styles.inputSection}>
-        <div className={styles.mbtiSelector}>
-          <div className={styles.dimensionGrid}>
-            <div className={styles.dimensionGroup}>
-              <div className={styles.dimensionGroupTitle}>Energy</div>
-              <div className={styles.dimensionGroupButtons}>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.energy === 'E' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('energy', 'E')}
-                >
-                  E
-                </button>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.energy === 'I' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('energy', 'I')}
-                >
-                  I
-                </button>
+      {!showFolder && (
+        <div className={styles.inputSection}>
+          <div className={styles.mbtiSelector}>
+            <div className={styles.dimensionGrid}>
+              <div className={styles.dimensionGroup}>
+                <div className={styles.dimensionGroupTitle}>Energy</div>
+                <div className={styles.dimensionGroupButtons}>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.energy === 'E' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('energy', 'E')}
+                  >
+                    E
+                  </button>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.energy === 'I' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('energy', 'I')}
+                  >
+                    I
+                  </button>
+                </div>
+              </div>
+              <div className={styles.dimensionGroup}>
+                <div className={styles.dimensionGroupTitle}>Information</div>
+                <div className={styles.dimensionGroupButtons}>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.information === 'S' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('information', 'S')}
+                  >
+                    S
+                  </button>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.information === 'N' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('information', 'N')}
+                  >
+                    N
+                  </button>
+                </div>
+              </div>
+              <div className={styles.dimensionGroup}>
+                <div className={styles.dimensionGroupTitle}>Decision</div>
+                <div className={styles.dimensionGroupButtons}>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.decision === 'T' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('decision', 'T')}
+                  >
+                    T
+                  </button>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.decision === 'F' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('decision', 'F')}
+                  >
+                    F
+                  </button>
+                </div>
+              </div>
+              <div className={styles.dimensionGroup}>
+                <div className={styles.dimensionGroupTitle}>Structure</div>
+                <div className={styles.dimensionGroupButtons}>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.structure === 'J' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('structure', 'J')}
+                  >
+                    J
+                  </button>
+                  <button 
+                    className={`${styles.dimensionBtn} ${mbti.structure === 'P' ? styles.selected : ''}`}
+                    onClick={() => updateDimension('structure', 'P')}
+                  >
+                    P
+                  </button>
+                </div>
               </div>
             </div>
-            <div className={styles.dimensionGroup}>
-              <div className={styles.dimensionGroupTitle}>Information</div>
-              <div className={styles.dimensionGroupButtons}>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.information === 'S' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('information', 'S')}
-                >
-                  S
-                </button>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.information === 'N' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('information', 'N')}
-                >
-                  N
-                </button>
-              </div>
+            <div className={styles.currentType}>
+              <span>Your Type:</span>
+              <span className={styles.typeBadge}>{currentType}</span>
             </div>
-            <div className={styles.dimensionGroup}>
-              <div className={styles.dimensionGroupTitle}>Decision</div>
-              <div className={styles.dimensionGroupButtons}>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.decision === 'T' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('decision', 'T')}
-                >
-                  T
-                </button>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.decision === 'F' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('decision', 'F')}
-                >
-                  F
-                </button>
-              </div>
-            </div>
-            <div className={styles.dimensionGroup}>
-              <div className={styles.dimensionGroupTitle}>Structure</div>
-              <div className={styles.dimensionGroupButtons}>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.structure === 'J' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('structure', 'J')}
-                >
-                  J
-                </button>
-                <button 
-                  className={`${styles.dimensionBtn} ${mbti.structure === 'P' ? styles.selected : ''}`}
-                  onClick={() => updateDimension('structure', 'P')}
-                >
-                  P
-                </button>
-              </div>
-            </div>
+            <button onClick={generateContent} className={styles.generateBtn}>
+              Generate {currentType} Lifestyle
+            </button>
           </div>
-          <div className={styles.currentType}>
-            <span>Your Type:</span>
-            <span className={styles.typeBadge}>{currentType}</span>
-          </div>
-          <button onClick={generateContent} className={styles.generateBtn}>
-            Generate My Personalized Lifestyle
-          </button>
         </div>
-      </div>
+      )}
 
-      {showFolder && !folderOpened && (
+      {isGenerating && (
+        <MatrixLoadingScreen />
+      )}
+
+      {showFolder && !folderOpened && !isGenerating && (
         <div id="folder" className={styles.folderSection}>
           <div className={styles.folderContainer} onDoubleClick={openFolder}>
             <div className={styles.folderIcon}>
@@ -328,30 +430,8 @@ function MBTIGenerator() {
             <LuckyColorCard
               mbtiType={currentType}
             />
-            <FilmsTVCard
+            <TypographyCard
               mbtiType={currentType}
-            />
-            <ResultCard
-              icon="🤝"
-              title="Communication Tips"
-              content={mbtiContent.communication[currentType]}
-              isText
-            />
-            <ResultCard
-              icon="⚡"
-              title="Strengths"
-              content={mbtiContent.strengths[currentType]}
-            />
-            <ResultCard
-              icon="🌱"
-              title="Growth Areas"
-              content={mbtiContent.growth[currentType]}
-            />
-            <ResultCard
-              icon="🎯"
-              title="Ideal Environment"
-              content={mbtiContent.environment[currentType]}
-              isText
             />
           </div>
         </div>
@@ -629,7 +709,7 @@ function WeatherCard({ topCity, topCityCoords }: { topCity: string; topCityCoord
 }
 
 function TarotCard({ content }: { content: string }) {
-  // Generate a random tarot card based on MBTI type for visual consistency
+  // Generate a random tarot card each time
   const tarotCards = [
     "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
     "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
@@ -657,6 +737,277 @@ function TarotCard({ content }: { content: string }) {
           </div>
           <div className={styles.tarotReading}>
             <p dangerouslySetInnerHTML={{ __html: content }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TypographyCard({ mbtiType }: { mbtiType: string }) {
+  // Define typography recommendations for each MBTI type
+  const typographyRecommendations: { [key: string]: { 
+    primary: { name: string; description: string; use: string; };
+    secondary: { name: string; description: string; use: string; };
+    reasoning: string;
+  } } = {
+    INTJ: {
+      primary: { 
+        name: 'Inter', 
+        description: 'A geometric sans-serif optimized for computer screens',
+        use: 'Professional documents, presentations, coding interfaces'
+      },
+      secondary: { 
+        name: 'JetBrains Mono', 
+        description: 'A developer-focused monospace font with ligatures',
+        use: 'Programming, technical documentation, data analysis'
+      },
+      reasoning: 'Your analytical mind benefits from clean, precise typography that enhances readability and maintains focus during long work sessions.'
+    },
+    INTP: {
+      primary: { 
+        name: 'Source Code Pro', 
+        description: 'A monospace font designed for coding environments',
+        use: 'Programming, research notes, technical writing'
+      },
+      secondary: { 
+        name: 'Roboto Mono', 
+        description: 'A monospace font with excellent character distinction',
+        use: 'Data analysis, algorithm documentation, system logs'
+      },
+      reasoning: 'Your logical processing style works best with monospace fonts that provide consistent spacing and clear character distinction.'
+    },
+    ENTJ: {
+      primary: { 
+        name: 'Montserrat', 
+        description: 'A geometric sans-serif with strong visual presence',
+        use: 'Executive presentations, leadership communications, strategic plans'
+      },
+      secondary: { 
+        name: 'Playfair Display', 
+        description: 'An elegant serif with commanding authority',
+        use: 'Formal reports, executive summaries, public statements'
+      },
+      reasoning: 'Your leadership nature requires typography that commands attention and conveys authority while maintaining professional clarity.'
+    },
+    ENTP: {
+      primary: { 
+        name: 'Poppins', 
+        description: 'A friendly geometric sans-serif with creative flair',
+        use: 'Innovation proposals, creative presentations, brainstorming materials'
+      },
+      secondary: { 
+        name: 'Space Grotesk', 
+        description: 'A variable font with modern, experimental character',
+        use: 'Design mockups, experimental projects, tech startups'
+      },
+      reasoning: 'Your innovative spirit thrives with modern, adaptable fonts that can express creativity while maintaining technical precision.'
+    },
+    INFJ: {
+      primary: { 
+        name: 'Crimson Text', 
+        description: 'A readable serif optimized for long-form reading',
+        use: 'Personal journals, reflective writing, philosophical texts'
+      },
+      secondary: { 
+        name: 'Lora', 
+        description: 'A well-balanced serif with emotional warmth',
+        use: 'Poetry, personal essays, meaningful communications'
+      },
+      reasoning: 'Your intuitive nature benefits from typography that feels warm and human, encouraging deep reflection and emotional connection.'
+    },
+    INFP: {
+      primary: { 
+        name: 'Merriweather', 
+        description: 'A serif designed for enjoyable reading on screens',
+        use: 'Creative writing, personal blogs, artistic statements'
+      },
+      secondary: { 
+        name: 'Crimson Pro', 
+        description: 'An elegant serif with artistic character',
+        use: 'Poetry, personal narratives, creative portfolios'
+      },
+      reasoning: 'Your artistic soul connects with typography that has personality and warmth, inspiring creative expression and authentic communication.'
+    },
+    ENFJ: {
+      primary: { 
+        name: 'Open Sans', 
+        description: 'A humanist sans-serif designed for accessibility',
+        use: 'Educational materials, community communications, social impact projects'
+      },
+      secondary: { 
+        name: 'Libre Baskerville', 
+        description: 'A web serif optimized for comfortable reading',
+        use: 'Mentoring documents, inspirational content, team communications'
+      },
+      reasoning: 'Your people-focused nature requires typography that is inclusive, accessible, and warm—fonts that make everyone feel welcome.'
+    },
+    ENFP: {
+      primary: { 
+        name: 'Nunito', 
+        description: 'A rounded sans-serif with friendly, approachable character',
+        use: 'Social media content, community events, creative collaborations'
+      },
+      secondary: { 
+        name: 'Quicksand', 
+        description: 'A sans-serif with playful, energetic personality',
+        use: 'Event announcements, creative projects, team building materials'
+      },
+      reasoning: 'Your enthusiastic personality shines through typography that is friendly, energetic, and approachable—fonts that invite connection.'
+    },
+    ISTJ: {
+      primary: { 
+        name: 'IBM Plex Sans', 
+        description: 'A corporate typeface designed for clarity and reliability',
+        use: 'Business reports, procedural documents, compliance materials'
+      },
+      secondary: { 
+        name: 'Source Serif Pro', 
+        description: 'A serif designed for comfortable reading of long documents',
+        use: 'Legal documents, technical manuals, detailed reports'
+      },
+      reasoning: 'Your methodical approach benefits from typography that prioritizes clarity, consistency, and professional reliability.'
+    },
+    ISFJ: {
+      primary: { 
+        name: 'PT Serif', 
+        description: 'A serif designed for comfortable reading',
+        use: 'Care documentation, patient materials, support resources'
+      },
+      secondary: { 
+        name: 'Source Sans Pro', 
+        description: 'A clean sans-serif optimized for web readability',
+        use: 'Healthcare communications, educational materials, community resources'
+      },
+      reasoning: 'Your caring nature requires typography that is gentle, clear, and supportive—fonts that make information accessible and comforting.'
+    },
+    ESTJ: {
+      primary: { 
+        name: 'Helvetica Neue', 
+        description: 'A classic sans-serif with authoritative presence',
+        use: 'Corporate communications, management reports, organizational charts'
+      },
+      secondary: { 
+        name: 'Times New Roman', 
+        description: 'A traditional serif with formal authority',
+        use: 'Legal documents, official correspondence, formal presentations'
+      },
+      reasoning: 'Your organized leadership style benefits from established, authoritative typography that conveys structure and professional competence.'
+    },
+    ESFJ: {
+      primary: { 
+        name: 'Roboto', 
+        description: 'A friendly sans-serif designed for modern interfaces',
+        use: 'Social media management, community newsletters, event planning'
+      },
+      secondary: { 
+        name: 'PT Sans', 
+        description: 'A humanist sans-serif with warm, approachable character',
+        use: 'Team communications, social events, community announcements'
+      },
+      reasoning: 'Your social nature thrives with typography that is warm, friendly, and approachable—fonts that build community and connection.'
+    },
+    ISTP: {
+      primary: { 
+        name: 'Fira Code', 
+        description: 'A monospace font with programming ligatures',
+        use: 'Technical documentation, system administration, troubleshooting guides'
+      },
+      secondary: { 
+        name: 'Consolas', 
+        description: 'A monospace font designed for programming',
+        use: 'Code reviews, technical specifications, diagnostic reports'
+      },
+      reasoning: 'Your hands-on approach benefits from technical typography that prioritizes functionality and precision over decoration.'
+    },
+    ISFP: {
+      primary: { 
+        name: 'Libre Baskerville', 
+        description: 'A web serif with artistic character and warmth',
+        use: 'Creative portfolios, personal websites, artistic statements'
+      },
+      secondary: { 
+        name: 'Karla', 
+        description: 'A friendly sans-serif with subtle personality',
+        use: 'Personal blogs, creative projects, individual communications'
+      },
+      reasoning: 'Your artistic sensibility connects with typography that has character and warmth, reflecting your authentic, individual style.'
+    },
+    ESTP: {
+      primary: { 
+        name: 'Montserrat', 
+        description: 'A bold geometric sans-serif with strong visual impact',
+        use: 'Marketing materials, event promotions, dynamic presentations'
+      },
+      secondary: { 
+        name: 'Oswald', 
+        description: 'A condensed sans-serif with energetic presence',
+        use: 'Social media graphics, quick communications, action-oriented content'
+      },
+      reasoning: 'Your dynamic nature requires typography that makes an immediate impact and conveys energy and action.'
+    },
+    ESFP: {
+      primary: { 
+        name: 'Nunito', 
+        description: 'A rounded sans-serif with friendly, energetic character',
+        use: 'Event promotions, social media content, party invitations'
+      },
+      secondary: { 
+        name: 'Fredoka One', 
+        description: 'A playful display font with fun, approachable personality',
+        use: 'Creative projects, social gatherings, entertainment content'
+      },
+      reasoning: 'Your fun-loving personality shines through typography that is playful, energetic, and inviting—fonts that celebrate life and connection.'
+    }
+  };
+
+  const rec = typographyRecommendations[mbtiType] || {
+    primary: { 
+      name: 'Inter', 
+      description: 'A versatile sans-serif optimized for digital reading',
+      use: 'General purpose, web content, professional documents'
+    },
+    secondary: { 
+      name: 'Source Serif Pro', 
+      description: 'A serif designed for comfortable reading',
+      use: 'Long-form content, reports, documentation'
+    },
+    reasoning: 'Your unique personality benefits from typography that balances clarity with character, supporting both professional and personal expression.'
+  };
+
+  return (
+    <div className={styles.resultCard}>
+      <h3>
+        <span className={styles.cardIcon}>🔤</span>
+        Recommended Typography
+      </h3>
+      <div className={styles.cardContent}>
+        <div className={styles.typographyDisplay}>
+          <div className={styles.fontSection}>
+            <h4 className={styles.fontSectionTitle}>Primary Font</h4>
+            <div className={styles.fontCard}>
+              <div className={styles.fontName}>{rec.primary.name}</div>
+              <div className={styles.fontDescription}>{rec.primary.description}</div>
+              <div className={styles.fontUse}>
+                <strong>Best for:</strong> {rec.primary.use}
+              </div>
+            </div>
+          </div>
+          <div className={styles.fontSection}>
+            <h4 className={styles.fontSectionTitle}>Secondary Font</h4>
+            <div className={styles.fontCard}>
+              <div className={styles.fontName}>{rec.secondary.name}</div>
+              <div className={styles.fontDescription}>{rec.secondary.description}</div>
+              <div className={styles.fontUse}>
+                <strong>Best for:</strong> {rec.secondary.use}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={styles.typographyReasoning}>
+          <p>{rec.reasoning}</p>
+          <div className={styles.freetypeNote}>
+            <em>Inspired by <a href="https://freetype.org" target="_blank" rel="noopener noreferrer">FreeType</a> font rendering technology</em>
           </div>
         </div>
       </div>
@@ -769,27 +1120,70 @@ function FilmsTVCard({ mbtiType }: { mbtiType: string }) {
 }
 
 function LuckyColorCard({ mbtiType }: { mbtiType: string }) {
-  // Define lucky colors for each MBTI type
-  const luckyColors: { [key: string]: { primary: string; secondary: string; meaning: string } } = {
-    INTJ: { primary: '#1a1a1a', secondary: '#4a90e2', meaning: 'Black represents your depth and mystery, while blue reflects your analytical nature and future-focused thinking.' },
-    INTP: { primary: '#2c3e50', secondary: '#95a5a6', meaning: 'Dark blue-gray embodies your logical approach, while silver reflects your innovative and adaptable mindset.' },
-    ENTJ: { primary: '#c0392b', secondary: '#f39c12', meaning: 'Red shows your leadership power, while gold represents your ambitious and commanding presence.' },
-    ENTP: { primary: '#8e44ad', secondary: '#e74c3c', meaning: 'Purple reflects your creativity and innovation, while red shows your energetic and dynamic nature.' },
-    INFJ: { primary: '#2980b9', secondary: '#2ecc71', meaning: 'Deep blue represents your intuitive wisdom, while green reflects your nurturing and growth-oriented spirit.' },
-    INFP: { primary: '#e91e63', secondary: '#9c27b0', meaning: 'Pink shows your gentle and idealistic nature, while purple reflects your creative and empathetic soul.' },
-    ENFJ: { primary: '#f39c12', secondary: '#e67e22', meaning: 'Orange represents your warmth and inspiration, while amber shows your natural leadership and charisma.' },
-    ENFP: { primary: '#e74c3c', secondary: '#f39c12', meaning: 'Bright red reflects your enthusiasm and passion, while orange shows your creative and optimistic energy.' },
-    ISTJ: { primary: '#34495e', secondary: '#7f8c8d', meaning: 'Dark gray represents your reliability and stability, while charcoal shows your methodical and responsible nature.' },
-    ISFJ: { primary: '#16a085', secondary: '#2ecc71', meaning: 'Teal reflects your caring and supportive nature, while green shows your nurturing and protective instincts.' },
-    ESTJ: { primary: '#c0392b', secondary: '#e74c3c', meaning: 'Deep red represents your authority and organization, while bright red shows your dynamic leadership style.' },
-    ESFJ: { primary: '#f39c12', secondary: '#e67e22', meaning: 'Golden orange reflects your warmth and hospitality, while amber shows your caring and social nature.' },
-    ISTP: { primary: '#2c3e50', secondary: '#95a5a6', meaning: 'Navy blue represents your practical approach, while silver reflects your independent and resourceful nature.' },
-    ISFP: { primary: '#e91e63', secondary: '#9c27b0', meaning: 'Rose pink shows your gentle and artistic nature, while violet reflects your creative and sensitive soul.' },
-    ESTP: { primary: '#e74c3c', secondary: '#f39c12', meaning: 'Bright red reflects your energy and action, while orange shows your adventurous and spontaneous spirit.' },
-    ESFP: { primary: '#f39c12', secondary: '#e67e22', meaning: 'Vibrant orange represents your enthusiasm and fun-loving nature, while amber shows your social and energetic personality.' }
+  // Generate random colors each time
+  const generateRandomColor = () => {
+    const colors = [
+      '#1a1a1a', '#2c3e50', '#34495e', '#8e44ad', '#9b59b6', '#2980b9', '#3498db', '#16a085',
+      '#27ae60', '#2ecc71', '#f39c12', '#e67e22', '#e74c3c', '#c0392b', '#e91e63', '#ad1457',
+      '#795548', '#607d8b', '#455a64', '#263238', '#ff5722', '#ff9800', '#ffc107', '#ffeb3b',
+      '#cddc39', '#8bc34a', '#4caf50', '#009688', '#00bcd4', '#03a9f4', '#2196f3', '#3f51b5',
+      '#673ab7', '#9c27b0', '#e91e63', '#f44336'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
   };
 
-  const colorInfo = luckyColors[mbtiType] || { primary: '#000000', secondary: '#666666', meaning: 'Your unique personality brings special energy to every color you choose.' };
+  // Pantone color database with hex codes and Pantone numbers
+  const pantoneColors = [
+    { hex: '#1a1a1a', pantone: 'PANTONE Black C', name: 'Black' },
+    { hex: '#2c3e50', pantone: 'PANTONE 533 C', name: 'Navy Blue' },
+    { hex: '#34495e', pantone: 'PANTONE 7547 C', name: 'Dark Gray' },
+    { hex: '#8e44ad', pantone: 'PANTONE 2685 C', name: 'Purple' },
+    { hex: '#9b59b6', pantone: 'PANTONE 7447 C', name: 'Lavender' },
+    { hex: '#2980b9', pantone: 'PANTONE 3005 C', name: 'Blue' },
+    { hex: '#3498db', pantone: 'PANTONE 2925 C', name: 'Sky Blue' },
+    { hex: '#16a085', pantone: 'PANTONE 569 C', name: 'Teal' },
+    { hex: '#27ae60', pantone: 'PANTONE 348 C', name: 'Green' },
+    { hex: '#2ecc71', pantone: 'PANTONE 356 C', name: 'Emerald' },
+    { hex: '#f39c12', pantone: 'PANTONE 137 C', name: 'Orange' },
+    { hex: '#e67e22', pantone: 'PANTONE 1665 C', name: 'Carrot Orange' },
+    { hex: '#e74c3c', pantone: 'PANTONE 199 C', name: 'Red' },
+    { hex: '#c0392b', pantone: 'PANTONE 200 C', name: 'Crimson' },
+    { hex: '#e91e63', pantone: 'PANTONE 213 C', name: 'Pink' },
+    { hex: '#ad1457', pantone: 'PANTONE 7437 C', name: 'Rose' },
+    { hex: '#795548', pantone: 'PANTONE 476 C', name: 'Brown' },
+    { hex: '#607d8b', pantone: 'PANTONE 7545 C', name: 'Blue Gray' },
+    { hex: '#455a64', pantone: 'PANTONE 7546 C', name: 'Charcoal' },
+    { hex: '#263238', pantone: 'PANTONE 426 C', name: 'Dark Blue Gray' },
+    { hex: '#ff5722', pantone: 'PANTONE 1655 C', name: 'Deep Orange' },
+    { hex: '#ff9800', pantone: 'PANTONE 1505 C', name: 'Amber' },
+    { hex: '#ffc107', pantone: 'PANTONE 116 C', name: 'Yellow' },
+    { hex: '#ffeb3b', pantone: 'PANTONE 102 C', name: 'Bright Yellow' },
+    { hex: '#cddc39', pantone: 'PANTONE 380 C', name: 'Lime' },
+    { hex: '#8bc34a', pantone: 'PANTONE 376 C', name: 'Light Green' },
+    { hex: '#4caf50', pantone: 'PANTONE 348 C', name: 'Green' },
+    { hex: '#009688', pantone: 'PANTONE 3282 C', name: 'Teal' },
+    { hex: '#00bcd4', pantone: 'PANTONE 319 C', name: 'Cyan' },
+    { hex: '#03a9f4', pantone: 'PANTONE 2985 C', name: 'Light Blue' },
+    { hex: '#2196f3', pantone: 'PANTONE 300 C', name: 'Blue' },
+    { hex: '#3f51b5', pantone: 'PANTONE 2736 C', name: 'Indigo' },
+    { hex: '#673ab7', pantone: 'PANTONE 2685 C', name: 'Deep Purple' },
+    { hex: '#9c27b0', pantone: 'PANTONE 2617 C', name: 'Purple' },
+    { hex: '#f44336', pantone: 'PANTONE 199 C', name: 'Red' }
+  ];
+
+  const generateColorMeaning = (color: any) => {
+    const meanings = [
+      `${color.name} reflects your unique energy today. This ${color.pantone} shade enhances your ${mbtiType.includes('E') ? 'extroverted' : 'introverted'} nature and brings balance to your personality.`,
+      `Your lucky color today is ${color.name} (${color.pantone}). This vibrant hue aligns with your ${mbtiType.includes('T') ? 'logical' : 'emotional'} approach and supports your ${mbtiType.includes('J') ? 'structured' : 'flexible'} lifestyle.`,
+      `The ${color.name} color resonates with your ${mbtiType} personality today. This ${color.pantone} shade reflects your current spiritual and emotional state, bringing harmony to your decisions.`,
+      `${color.name} (${color.pantone}) enhances your natural charisma today. This color supports your personal growth and mirrors your personality's depth and complexity.`,
+      `Today's lucky color, ${color.name}, brings positive energy to your ${mbtiType} nature. The ${color.pantone} shade aligns with your current mindset and enhances your natural strengths.`
+    ];
+    return meanings[Math.floor(Math.random() * meanings.length)];
+  };
+
+  const selectedColor = pantoneColors[Math.floor(Math.random() * pantoneColors.length)];
+  const colorMeaning = generateColorMeaning(selectedColor);
 
   return (
     <div className={styles.resultCard}>
@@ -802,19 +1196,13 @@ function LuckyColorCard({ mbtiType }: { mbtiType: string }) {
           <div className={styles.colorSwatches}>
             <div 
               className={styles.colorSwatch}
-              style={{ backgroundColor: colorInfo.primary }}
+              style={{ backgroundColor: selectedColor.hex }}
             >
-              <div className={styles.colorLabel}>Primary</div>
-            </div>
-            <div 
-              className={styles.colorSwatch}
-              style={{ backgroundColor: colorInfo.secondary }}
-            >
-              <div className={styles.colorLabel}>Secondary</div>
+              <div className={styles.colorLabel}>{selectedColor.pantone}</div>
             </div>
           </div>
           <div className={styles.colorMeaning}>
-            <p>{colorInfo.meaning}</p>
+            <p>{colorMeaning}</p>
           </div>
         </div>
       </div>
