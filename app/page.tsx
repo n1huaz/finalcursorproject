@@ -99,7 +99,7 @@ function MatrixLoadingScreen() {
                 className={styles.matrixChar}
                 style={{
                   opacity: Math.random() > 0.5 ? 1 : 0.3,
-                  color: `hsl(${120 + Math.random() * 20}, 100%, ${50 + Math.random() * 30}%)`,
+                  color: `hsl(0, 0%, ${Math.random() > 0.3 ? 100 : Math.random() * 50}%)`,
                   animationDelay: `${Math.random() * 2}s`
                 }}
               >
