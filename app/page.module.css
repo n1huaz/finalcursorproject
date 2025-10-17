@@ -313,22 +313,29 @@
 
 /* Matrix Loading Screen Styles */
 .matrixContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: #000000;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #000000 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
+  box-sizing: border-box !important;
+  -webkit-margin: 0 !important;
+  -webkit-padding: 0 !important;
+  -moz-margin: 0 !important;
+  -moz-padding: 0 !important;
 }
 
 .matrixGrid {

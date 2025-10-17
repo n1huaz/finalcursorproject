@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styles from "./page.module.css";
 
 interface SpotifyTrack {
@@ -374,8 +375,9 @@ function MBTIGenerator() {
         </div>
       )}
 
-      {isGenerating && (
-        <MatrixLoadingScreen />
+      {isGenerating && createPortal(
+        <MatrixLoadingScreen />,
+        document.body
       )}
 
       {showFolder && !folderOpened && !isGenerating && (
