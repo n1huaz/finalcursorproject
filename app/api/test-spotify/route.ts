@@ -53,10 +53,11 @@ export async function GET() {
       token_preview: data.access_token ? `${data.access_token.substring(0, 20)}...` : null,
       debug: debugInfo
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({
       error: 'Connection error',
-      message: error.message,
+      message: errorMessage,
       debug: debugInfo
     }, { status: 500 });
   }

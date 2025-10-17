@@ -19,7 +19,7 @@ interface SpotifyTrack {
 
 function MatrixLoadingScreen() {
   const [matrixChars, setMatrixChars] = useState<string[][]>([]);
-  const [animationFrame, setAnimationFrame] = useState(0);
+  const [, setAnimationFrame] = useState(0);
 
   useEffect(() => {
     // Initialize matrix characters
@@ -44,8 +44,8 @@ function MatrixLoadingScreen() {
     // Animation loop
     const interval = setInterval(() => {
       setMatrixChars(prevMatrix => {
-        const newMatrix = prevMatrix.map((column, colIndex) => {
-          return column.map((char, rowIndex) => {
+        const newMatrix = prevMatrix.map((column) => {
+          return column.map((char) => {
             // Randomly update characters with fade effect
             if (Math.random() > 0.85) {
               return allChars[Math.floor(Math.random() * allChars.length)];
@@ -145,9 +145,10 @@ function MBTIGenerator() {
         setSpotifyError(data.message || data.error || 'Failed to fetch recommendations');
         setSpotifyTracks([]);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching Spotify recommendations:', error);
-      setSpotifyError(error.message || 'Network error - please check your connection');
+      const errorMessage = error instanceof Error ? error.message : 'Network error - please check your connection';
+      setSpotifyError(errorMessage);
       setSpotifyTracks([]);
     } finally {
       setLoadingMusic(false);
@@ -628,7 +629,15 @@ const cityCoordinates: { [key: string]: { lat: number; lon: number } } = {
 };
 
 function WeatherCard({ topCity, topCityCoords }: { topCity: string; topCityCoords: { lat: number; lon: number } }) {
-  const [weather, setWeather] = useState<any>(null);
+  const [weather, setWeather] = useState<{
+    temperature: number;
+    description: string;
+    humidity: number;
+    windSpeed: number;
+    city: string;
+    icon: string;
+    feelsLike: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -646,9 +655,10 @@ function WeatherCard({ topCity, topCityCoords }: { topCity: string; topCityCoord
         
         const data = await response.json();
         setWeather(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Weather fetch error:', err);
-        setError(err.message || 'Unable to load weather data');
+        const errorMessage = err instanceof Error ? err.message : 'Unable to load weather data';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -1121,16 +1131,6 @@ function FilmsTVCard({ mbtiType }: { mbtiType: string }) {
 
 function LuckyColorCard({ mbtiType }: { mbtiType: string }) {
   // Generate random colors each time
-  const generateRandomColor = () => {
-    const colors = [
-      '#1a1a1a', '#2c3e50', '#34495e', '#8e44ad', '#9b59b6', '#2980b9', '#3498db', '#16a085',
-      '#27ae60', '#2ecc71', '#f39c12', '#e67e22', '#e74c3c', '#c0392b', '#e91e63', '#ad1457',
-      '#795548', '#607d8b', '#455a64', '#263238', '#ff5722', '#ff9800', '#ffc107', '#ffeb3b',
-      '#cddc39', '#8bc34a', '#4caf50', '#009688', '#00bcd4', '#03a9f4', '#2196f3', '#3f51b5',
-      '#673ab7', '#9c27b0', '#e91e63', '#f44336'
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
 
   // Pantone color database with hex codes and Pantone numbers
   const pantoneColors = [
@@ -1171,7 +1171,7 @@ function LuckyColorCard({ mbtiType }: { mbtiType: string }) {
     { hex: '#f44336', pantone: 'PANTONE 199 C', name: 'Red' }
   ];
 
-  const generateColorMeaning = (color: any) => {
+  const generateColorMeaning = (color: { name: string; pantone: string }) => {
     const meanings = [
       `${color.name} reflects your unique energy today. This ${color.pantone} shade enhances your ${mbtiType.includes('E') ? 'extroverted' : 'introverted'} nature and brings balance to your personality.`,
       `Your lucky color today is ${color.name} (${color.pantone}). This vibrant hue aligns with your ${mbtiType.includes('T') ? 'logical' : 'emotional'} approach and supports your ${mbtiType.includes('J') ? 'structured' : 'flexible'} lifestyle.`,
@@ -1298,7 +1298,18 @@ function FeaturedTrackCard({ track, mbtiType }: { track: SpotifyTrack; mbtiType:
   );
 }
 
-const mbtiContent: any = {
+const mbtiContent: {
+  cities: { [key: string]: string[] };
+  horoscope: { [key: string]: string };
+  hobbies: { [key: string]: string[] };
+  learning: { [key: string]: string };
+  communication: { [key: string]: string };
+  strengths: { [key: string]: string[] };
+  growth: { [key: string]: string[] };
+  environment: { [key: string]: string };
+  careers: { [key: string]: string[] };
+  motivation: { [key: string]: string };
+} = {
   cities: {
     INTJ: ["Boston, MA - Intellectual hub with top universities", "Seattle, WA - Tech innovation center", "Berlin, Germany - Progressive and efficient", "Tokyo, Japan - Advanced systems and order", "Austin, TX - Growing tech scene"],
     INTP: ["San Francisco, CA - Tech and ideas capital", "Cambridge, MA - Academic excellence", "Portland, OR - Quirky and innovative", "Amsterdam, Netherlands - Liberal thinking", "Stockholm, Sweden - Design and innovation"],

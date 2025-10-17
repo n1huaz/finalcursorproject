@@ -141,15 +141,17 @@ export async function GET(request: NextRequest) {
     console.log('Successfully fetched', recommendations.tracks?.length || 0, 'tracks');
 
     return NextResponse.json(recommendations);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching recommendations:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error('Error message:', errorMessage);
+    console.error('Error stack:', errorStack);
     return NextResponse.json(
       { 
         error: 'Failed to fetch recommendations',
-        message: error.message,
-        details: error.toString()
+        message: errorMessage,
+        details: error?.toString() || 'Unknown error'
       },
       { status: 500 }
     );
