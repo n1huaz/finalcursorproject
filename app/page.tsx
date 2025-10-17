@@ -18,6 +18,31 @@ interface SpotifyTrack {
   };
 }
 
+interface Pokemon {
+  id: number;
+  name: string;
+  height: number;
+  weight: number;
+  types: string[];
+  abilities: string[];
+  stats: {
+    hp: number;
+    attack: number;
+    defense: number;
+    'special-attack': number;
+    'special-defense': number;
+    speed: number;
+  };
+  sprites: {
+    front_default: string;
+    front_shiny: string;
+    other: {
+      'official-artwork': string;
+    };
+  };
+  description: string;
+}
+
 function MatrixLoadingScreen() {
   const [matrixChars, setMatrixChars] = useState<string[][]>([]);
   const [, setAnimationFrame] = useState(0);
@@ -118,11 +143,60 @@ function MBTIGenerator() {
   const [loadingMusic, setLoadingMusic] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [spotifyError, setSpotifyError] = useState<string | null>(null);
+  const [pokemon, setPokemon] = useState<Pokemon | null>(null);
+  const [loadingPokemon, setLoadingPokemon] = useState(false);
+  const [pokemonError, setPokemonError] = useState<string | null>(null);
 
   const currentType = `${mbti.energy}${mbti.information}${mbti.decision}${mbti.structure}`;
 
   const updateDimension = (dimension: keyof typeof mbti, value: string) => {
     setMbti({ ...mbti, [dimension]: value });
+  };
+
+  const fetchPokemonRecommendation = async () => {
+    setLoadingPokemon(true);
+    setPokemonError(null);
+    try {
+      // Define Pokemon recommendations for each MBTI type
+      const pokemonRecommendations: { [key: string]: number } = {
+        INTJ: 150, // Mewtwo - Intelligent and strategic
+        INTP: 137, // Porygon - Analytical and logical
+        ENTJ: 248, // Tyranitar - Powerful and commanding
+        ENTP: 150, // Mewtwo - Innovative and adaptable
+        INFJ: 144, // Articuno - Mystical and wise
+        INFP: 151, // Mew - Dreamy and creative
+        ENFJ: 144, // Articuno - Inspiring and protective
+        ENFP: 150, // Mewtwo - Enthusiastic and dynamic
+        ISTJ: 143, // Snorlax - Reliable and methodical
+        ISFJ: 131, // Lapras - Caring and supportive
+        ESTJ: 248, // Tyranitar - Organized and authoritative
+        ESFJ: 131, // Lapras - Helpful and traditional
+        ISTP: 142, // Aerodactyl - Practical and independent
+        ISFP: 151, // Mew - Artistic and gentle
+        ESTP: 142, // Aerodactyl - Energetic and action-oriented
+        ESFP: 150, // Mewtwo - Fun-loving and social
+      };
+
+      const pokemonId = pokemonRecommendations[currentType] || 150; // Default to Mewtwo
+      
+      const response = await fetch(`/api/pokemon?id=${pokemonId}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setPokemon(data);
+        setPokemonError(null);
+      } else {
+        setPokemonError(data.error || 'Failed to fetch Pokemon');
+        setPokemon(null);
+      }
+    } catch (error: unknown) {
+      console.error('Error fetching Pokemon:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Network error - please check your connection';
+      setPokemonError(errorMessage);
+      setPokemon(null);
+    } finally {
+      setLoadingPokemon(false);
+    }
   };
 
   const fetchSpotifyRecommendations = async () => {
@@ -164,7 +238,10 @@ function MBTIGenerator() {
     
     // Simulate loading time with Matrix animation
     setTimeout(async () => {
-      await fetchSpotifyRecommendations();
+      await Promise.all([
+        fetchSpotifyRecommendations(),
+        fetchPokemonRecommendation()
+      ]);
       setIsGenerating(false);
       
       setTimeout(() => {
@@ -433,12 +510,19 @@ function MBTIGenerator() {
             <LuckyColorCard
               mbtiType={currentType}
             />
-            <TypographyCard
-              mbtiType={currentType}
-            />
-          </div>
-        </div>
-      )}
+                <TypographyCard
+                  mbtiType={currentType}
+                />
+                
+                <PokemonCard
+                  pokemon={pokemon}
+                  loadingPokemon={loadingPokemon}
+                  pokemonError={pokemonError}
+                  fetchPokemonRecommendation={fetchPokemonRecommendation}
+                />
+              </div>
+            </div>
+          )}
     </div>
   );
 }
@@ -751,6 +835,74 @@ function TarotCard({ content }: { content: string }) {
             <p dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PokemonCard({ 
+  pokemon, 
+  loadingPokemon, 
+  pokemonError, 
+  fetchPokemonRecommendation 
+}: {
+  pokemon: Pokemon | null;
+  loadingPokemon: boolean;
+  pokemonError: string | null;
+  fetchPokemonRecommendation: () => void;
+}) {
+  return (
+    <div className={styles.resultCard}>
+      <h3>
+        <span className={styles.cardIcon}>🎮</span>
+        Your Pokemon Partner
+      </h3>
+      <div className={styles.cardContent}>
+        {loadingPokemon ? (
+          <div className={styles.pokemonLoading}>Loading Pokemon...</div>
+        ) : pokemonError ? (
+          <div className={styles.pokemonError}>
+            <p>⚠️ {pokemonError}</p>
+            <button onClick={fetchPokemonRecommendation} className={styles.pokemonRetryBtn}>
+              Try Again
+            </button>
+          </div>
+        ) : pokemon ? (
+          <div className={styles.pokemonDisplay}>
+            <div className={styles.pokemonImage}>
+              <img 
+                src={pokemon.sprites.other['official-artwork'] || pokemon.sprites.front_default} 
+                alt={pokemon.name}
+                className={styles.pokemonSprite}
+              />
+            </div>
+            <div className={styles.pokemonInfo}>
+              <h4 className={styles.pokemonName}>
+                #{pokemon.id} {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
+              </h4>
+              <div className={styles.pokemonTypes}>
+                {pokemon.types.map((type, index) => (
+                  <span key={index} className={styles.pokemonType}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </span>
+                ))}
+              </div>
+              <div className={styles.pokemonStats}>
+                <div className={styles.statRow}>
+                  <span>HP: {pokemon.stats.hp}</span>
+                  <span>Attack: {pokemon.stats.attack}</span>
+                </div>
+                <div className={styles.statRow}>
+                  <span>Defense: {pokemon.stats.defense}</span>
+                  <span>Speed: {pokemon.stats.speed}</span>
+                </div>
+              </div>
+              <p className={styles.pokemonDescription}>
+                {pokemon.description}
+              </p>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
